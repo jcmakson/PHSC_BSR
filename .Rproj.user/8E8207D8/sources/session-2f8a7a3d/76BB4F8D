@@ -1,0 +1,32 @@
+{
+    "id": "76BB4F8D",
+    "path": "~/Documents/PHSC_BSR/Report/Report_Assessment.qmd",
+    "project_path": "Report/Report_Assessment.qmd",
+    "type": "quarto_markdown",
+    "hash": "2501007197",
+    "contents": "",
+    "dirty": false,
+    "created": 1686397516127.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "rmdVisualMode": "false",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "0,0",
+        "scrollLine": "0",
+        "rmdVisualCollapsedChunks": "",
+        "rmdVisualModeLocation": "2:42.272727966308594",
+        "rmdVisualWrapConfigured": "true",
+        "docOutlineVisible": "1",
+        "last_setup_crc32": "b6acd4658202f8ee"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1686397527,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1686397527692,
+    "read_only": false,
+    "read_only_alternatives": []
+}

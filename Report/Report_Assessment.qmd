@@ -1,0 +1,298 @@
+---
+title: "Project report - analysis of dataset covid_testing from the [medicaldata](https://cran.r-project.org/web/packages/medicaldata/medicaldata.pdf)"
+author: "[Jean Claude Makangara](https://orcid.org/my-orcid?orcid=0000-0002-1791-2247)"
+date: "2023-06-10"
+toc: true
+toc-depth: 4
+toc-location: left
+format: 
+  html:
+    self-contained: true
+    code-link: true
+    code-fold: true
+    code-summary: "Code"
+number-sections: true
+editor: source
+theme:
+  light: flatly
+  dark: darkly
+---
+
+# Introduction
+
+This project was conducted in term of the assessment of the [Course Basic statistics and Project in R](https://zuw.me/kurse/index.php?base=phs-ispm&set_hl=en) organised by the [Institut of ocial and Sreventive Medicine ISPM](https://www.ispm.unibe.ch) of the [University of Bern](https://www.unibe.ch/index_eng.html).
+
+The project was about to select a dataset from a data base of your choice and frame a research question on relating to the data project.
+
+The following project is about data collected during the 1st quater of the onset of the covid-19 pandemic, in the pediatric clinic [CHOP](https://www.chop.edu). These data can be found in the [medicaldata package for R pp4-5](https://cran.r-project.org/web/packages/medicaldata/medicaldata.pdf). Considering different variables, we frame the following research question :\*\_what factors have impact the covid test result at the CHOP clinic during the first quater of the onset of the pandemic in 2020?\*
+
+## Aim
+
+To answer this question, our overall aim was to evaluate factor that have influenced the covid-19 testing in the CHOP during the first quator of the onset of covid-19 pandemic.
+
+## Objectives
+
+To attend our aim we have state the following objectives : - Describe the characteristic of patients who have been tested during the period of study - Describe the sars-cov-2 testing and results - Evaluate the parameters which have impacted the sars-cov-2 testing result during the study period
+
+# Methods
+
+## Study design and data collection
+
+A retrospective cross-sectional study. Downloaded data from the[medicaldata](https://cran.r-project.org/web/packages/medicaldata/medicaldata.pdf)". Data were collected from the 4th to the 107th days after the onset of the pandemic covid-19. Data were collected in the CHOP clinics.
+
+## Characteristics of data and data frame selection
+
+The dataset consist of a data frame with 15524 observation and 17 variables. After checking the characteristic of our data, we selected variable of interest to answer to our research question and tidy our data using the tidyverse package. The following variables were selected, some have been converted:
+
+-   Quantitative variable : Pan_day (days after started of the pandemic), Ct_result (cycle at the threshold reached during the PCR), col_rec_tat (time between collect time and receive time), Rec_ver_tat (time receive and verification).
+
+-   Categorical variable : Gender, Test_id (type of test), Demo_group (different clinics of CHOP), Drive_thru_ind (a variable set as factor with labels 0 = not collected at drive_thru site and 1 collected at drive_thru site), Order_set ( set as factor), payor_group (set as a factor), The R_script for this can be download in the folder [00_Data_process.R](data/raw/00_main_R/00_Data_process.R)
+
+```{r setup, include=FALSE, echo=F, warning=FALSE, message=FALSE}
+# setting working directory 
+
+# loading and tidying data
+
+## Loading all the package you need here
+
+library(tidyverse)
+library(lubridate)
+library(unibeCols)
+library(esquisse)
+library(medicaldata)
+library(readr)
+library(stats4)
+library(gtsummary)
+library(ggplot2)
+library(dplyr)
+library(knitr)
+library(ggcorrplot)
+library(epitools)
+
+###### upload data from medicaldata package 
+
+# N.B. setwd ("data/raw/" : set your working directory for data_process)
+data <- covid_testing
+write.csv(data, file = "my_data.csv")
+
+my_data <- read_csv("my_data.csv")
+my_data_processed <- my_data %>% 
+  mutate(gender = factor(gender, levels= c("female", "male"), labels=c("female", "male")),
+         result=factor(result, levels=c("positive", "negative", "invalid")),
+         clinic_name=factor(clinic_name, levels=c( )),
+         test_id = factor(test_id, levels=c("covid", "xcvd1")),
+                          demo_group=factor(demo_group, levels=c("patient", "misc_adult", "client", "other adult", "unidentified")),
+         drive_thru_ind=factor(drive_thru_ind, levels=c(0,1), labels=c("Not collected at drive_thru-site", "collected at drive-thru site")),
+         payor_group=factor(payor_group, levels=c("commercial", "governmenet", "unassigned", "medical assistance", "self pay", "charity care", "other")),
+         orderset=factor(orderset, levels=c(1, 0), labels=c("Collected via orderset", "Not collected via orderset")))
+
+write.csv(my_data_processed, file = "~/Documents/PHSC_BSR/data/processed/my_data_processed.csv")
+
+```
+
+## Statistical analysis
+
+Descriptive statistics was conducted for continuous variables and categorical variables. Analytical statistics were applied after valuating the correlation etween variable, the p-value \<0.05 with 95%CI. Our results will presented as figure and tables following the R.script.
+
+# Results
+
+For the result we gonna present R script, results and interpretation of figures and tables. The script can be downloaded in the file [01_Data_analysis.R](data/raw/00_main_R/01_Data_analysis.R)
+
+## Summary of data
+
+```{r}
+my_data_processed <- read_csv("~/Documents/PHSC_BSR/data/processed/my_data_processed.csv", 
+                              col_types = cols(gender = col_factor(levels = c()), 
+                                               result = col_factor(levels = c())))
+ my_data_processed %>%
+   dplyr::select(gender, pan_day, demo_group, test_id, drive_thru_ind, ct_result, orderset,
+                 payor_group, col_rec_tat, rec_ver_tat, result) %>%
+   tbl_summary(by = gender, type = c(rad_num = "continuous", logical = "categorical")) %>%
+   add_overall() %>%
+   add_p() %>%
+   add_n() %>%
+   modify_header(p.value ~ "Proportion") %>%
+   as_gt()
+```
+
+## Age distribution of the population considering the gender
+
+```{r}
+ 
+ my_data_processed %>%
+ ggplot(aes(y = age, x = gender, fill = gender)) + 
+   geom_boxplot() + 
+   theme_bw()+
+  labs(caption = "Fig. 1: Bareplot of Age by gender")
+
+```
+
+The figure 1 representes the distribution of the age of our population considering the gender.
+
+## Density of our population
+
+```{r}
+ 
+my_data_processed %>%
+ggplot(my_data_processed, mapping = aes()) + 
+  geom_histogram(mapping =  aes(x = age, y = after_stat(density), colour = gender, fill = gender ),
+                  alpha = 0.4, bins = 100 ) +
+  geom_density(mapping = aes(x = age , colour = gender), linewidth = 1.5 ) +
+  theme(text = element_text(size=20), legend.position = "top") +
+  xlab( "Age in year" ) + 
+  scale_colour_manual(name = "" , values=c("female"=unibePastelS()[1],
+                                           "male"=unibeIceS()[1]), labels = c("Female", "Male")) +
+  scale_fill_manual(name = "", values=c("female"=unibePastelS()[1],
+                                        "male"=unibeIceS()[1]), labels = c("Female", "Male")) +
+  geom_vline(mapping = aes(xintercept = median(age)), color = unibeRedS()[1], linewidth = 1) +
+  theme_bw()+
+  labs(caption = "Fig. 2: Density of our population by Age by gender ")
+
+```
+
+The fig.2 depicted the distributio of the study population according to the age. This distibution demonstratred that our data are non normal distributed.
+
+## Generate a quantile-quantile (QQ) plot using.
+
+```{r}
+
+my_data_processed %>%
+  ggplot(mapping = aes(sample = age)) + 
+  geom_qq_line(distribution = stats::qnorm) +
+  geom_qq(color = unibePastelS()[1], distribution = stats::qnorm) + 
+  xlab("Theoretical Quantiles") +
+  ylab("Sample Quantiles") +
+  theme(text = element_text(size=20), legend.position = "top")+
+   labs(caption = "Fig. 3: the Q.Q-plot of the study poulation"
+        )
+```
+
+The figure 3 and the Ks test confirm the non normal distribution of our data as we can see in the Kolmogorov-Smirnov test below, with p-value \<0.05 the H1 is confrime that our data are not normal distributed.
+
+```{r}
+ks.test(my_data_processed$age, "pnorm")
+```
+
+## Transformation of the skew left to look more normal
+
+```{r}
+
+my_data_processed %>%
+  ggplot(my_data_processed, mapping = aes()) + 
+  geom_histogram(mapping =  aes(log(x = age), y = after_stat(density), colour = gender, fill = gender ),
+                 alpha = 0.4, bins = 100 ) +
+  geom_density(mapping = aes(log(x = age) , colour = gender), linewidth = 1.5 ) +
+  theme(text = element_text(size=20), legend.position = "top") +
+  xlab( "Age in year" ) + 
+  scale_colour_manual(name = "" , values=c("female"=unibePastelS()[1],
+                                           "male"=unibeIceS()[1]), labels = c("Female", "Male")) +
+  scale_fill_manual(name = "", values=c("female"=unibePastelS()[1],
+                                        "male"=unibeIceS()[1]), labels = c("Female", "Male")) +
+  geom_vline(mapping = aes(xintercept = median(age)), color = unibeRedS()[1], linewidth = 1)+
+  labs(caption = "Fig.4 Normalization of our data using the log function")
+ 
+```
+
+By the figure 4, we have normalized our data using the log function
+
+## Create correlation matrix of all numerical measurements and plot the matrix
+
+```{r}
+
+cor_matrix <- my_data_processed %>% 
+  dplyr::select(pan_day,age, ct_result, col_rec_tat, rec_ver_tat) %>%
+  cor(use = "complete.obs", method = "spearman")
+
+cor_matrix %>%
+  kable(digits = 2)
+
+ggcorrplot(cor_matrix, lab=TRUE)+
+  labs(caption= "Fig.5: the correlation matrix using quantitative variable")
+
+```
+
+In the figure 5, the matrix shows no correlation between paired variables.
+
+## Comparing two variable with geom_boplox, geom_point and geom_line
+
+```{r}
+
+my_data_processed %>%
+  ggplot(mapping =  aes(ct_result, age)) +
+  geom_boxplot(width = 0.25, fill = "red") +
+  geom_point(colour ="blue", size = 1) +
+  geom_line(aes(group = subject_id), colour = "steelblue", linetype = "11") +
+  theme_bw()+
+  labs(caption = "Fig. 5 : Geom point and geomline comparing the age to result")
+
+```
+
+The figure 5 show the distribution of two variables age and ct_result.
+
+## Inference using proportions
+
+### Create a dichotomic variable using my outcome (result): for this I assign the 1= "positive result" and 0 ="not positive results"
+
+```{r}
+
+
+my_data_processed$outcomed <- 0
+my_data_processed$outcomed [my_data_processed$result=="positive"] <-1
+ my_data_processed$outcomed <- factor(my_data_processed$outcomed, levels= c(0,1), labels=c("Not positive", "Positive"))
+```
+
+### calculate the proportion of test result according to the gender
+
+```{r}
+ outcomed_t <-  table(my_data_processed$gender, my_data_processed$outcomed)
+ outcomed_t 
+
+ n_outcomed_p <- rowSums(outcomed_t)
+ n_outcomed_p
+ as.matrix(n_outcomed_p)
+ 
+```
+
+### Calculate the 95% Confidence intervals (CI)
+
+```{r}
+SE_outcomed <- sqrt(outcomed_t * (1- outcomed_t)/n_outcomed_p)
+lowerCI_outcome_t <- outcomed_t - qnorm(0.975)* SE_outcomed
+upperCI_outcome_t <- outcomed_t + qnorm(0.975)* SE_outcomed
+cbind(outcomed_t, lowerCI_outcome_t, upperCI_outcome_t)
+
+prop.test(outcomed_t[1,2],n=n_outcomed_p[1])
+
+CI95_result <-prop.test(outcomed_t[1,2],n=n_outcomed_p[1])
+
+names(CI95_result)
+CI95_result$conf.int
+```
+
+### Sample test for equality of proportions with continuity correction
+
+```{r}
+
+chisq.test(cbind(outcomed_t[, 2], outcomed_t[, 1]))
+```
+
+### Pearson's Chi-squared test with Yates' continuity correction
+
+### Risk ratios and odds ratios: calculation of RR and OR for population to have the disease considering the gender
+
+```         
+riskratio(outcomed_t, correction= TRUE)
+
+riskratio(outcomed_t, correction= TRUE, rev= "rows")
+oddsratio(outcomed_t, correction = TRUE, rev = "rows")
+```
+
+The risk of having a covid19 test positive when your are female is 1.060034 (95%-CI: 0.9311 1.2067) and the corresponding Odd Ration is 1.0636 (95%-CI:0.9272 - 1.2203)
+
+# Conclusion
+
+The result depicted the statistics analysis of the covid_testing data downloaded from the [medicaldata](https://cran.r-project.org/web/packages/medicaldata/medicaldata.pdf). The interpretation of graphs and tables may not be true. The goal of this assessment was to apply learned knowledges during the course on real data using R and quarto and to publish this report on github.
+
+# Acknowledgements
+
+We thank all the team of the [Institut of ocial and Sreventive Medicine ISPM](https://www.ispm.unibe.ch) of the [University of Bern](https://www.unibe.ch/index_eng.html) for organising this course and accepting our application. We thank also my supervisors [Ronald Dijkman](https://www.ifik.unibe.ch/research/experimental_virology___ronald_dijkman/index_eng.html), [Jenna Kelly](https://www.mcid.unibe.ch/about_us/people/dr_kelly_jenna/index_eng.html) and [Placide Mbala](http://inrb.cd/index.php/departements). We thank all the colleagues and fellows from [Institut of ocial and Sreventive Medicine ISPM](https://www.ispm.unibe.ch) for all your support. We thank all the [group of experimental virology at IFIK](https://www.ifik.unibe.ch/forschung/experimental_virology___ronald_dijkman/team/index_ger.html), the [VetSuisse](https://www.ivi.unibe.ch) and all the team of [INRB](http://inrb.cd/index.php/departements) for your support.

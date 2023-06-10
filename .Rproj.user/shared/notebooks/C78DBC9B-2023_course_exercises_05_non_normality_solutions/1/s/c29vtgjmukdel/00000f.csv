@@ -1,0 +1,8 @@
+"0","##### Create correlation matrix of all numerical measurements and plot the matrix "
+"0",""
+"0","cor_matrix <- my_data_processed %>% "
+"0","  dplyr::select(pan_day,age, ct_result, col_rec_tat, rec_ver_tat) %>%"
+"0","  cor(use = ""complete.obs"", method = ""spearman"")"
+"0",""
+"0","cor_matrix %>%"
+"0","  kable(digits = 2)"

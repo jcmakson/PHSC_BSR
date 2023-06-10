@@ -1,0 +1,8 @@
+"0",""
+"0"," ### Age distribution of the population considering the gender "
+"0"," "
+"0"," my_data_processed %>%"
+"0"," ggplot(aes(y = age, x = gender, fill = gender)) + "
+"0","   geom_boxplot() + "
+"0","   theme_bw()+"
+"0","  labs(caption = ""Fig 1: bareplot of Age by gender"")"
