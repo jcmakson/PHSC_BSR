@@ -20,7 +20,7 @@ theme:
 
 # Introduction
 
-This project was conducted in term of the assessment of the [Course Basic statistics and Project in R](https://zuw.me/kurse/index.php?base=phs-ispm&set_hl=en) organised by the [Institut of ocial and Sreventive Medicine ISPM](https://www.ispm.unibe.ch) of the [University of Bern](https://www.unibe.ch/index_eng.html).
+This project was conducted in term of the assessment of the [Course Basic statistics and Project in R](https://zuw.me/kurse/index.php?base=phs-ispm&set_hl=en) organised by the [Institut of Social and Preventive Medicine ISPM](https://www.ispm.unibe.ch) of the [University of Bern](https://www.unibe.ch/index_eng.html).
 
 The project was about to select a dataset from a data base of your choice and frame a research question on relating to the data project.
 
